@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+   <meta charset="UTF-8">
+   <title>JavaScript3-1</title>
+</head>
+<body>
+   <header>
+      <h1>ToDoリスト</h1>
+   </header>
+
+   <main>
+      <!-- 表示内容を切り替えるラジオボタン -->
+      <section>
+            <input type="radio" name="displayStatus" value="statusAll" checked> すべて
+            <input type="radio" name="displayStatus" value="statusWorking"> 作業中
+            <input type="radio" name="displayStatus" value="statusFinished"> 完了
+      </section>
+
+      <!-- タスクリストの表示 -->
+      <section>
+         <table>
+            <!-- リストの見出し -->
+            <thead>
+               <tr>
+                  <th>ID</th>
+                  <th>コメント</th>
+                  <th>状態</th>
+               </tr>
+            </thead>
+            <!-- タスクの表示場所 -->
+            <tbody id="taskContainer"></tbody>
+         </table>
+      </section>
+
+      <!-- 新規タスクの入力欄 -->
+      <section>
+         <h1>新規タスクの追加</h1>
+         <form>
+            <label for="commnet">
+               <input id="commnet" type="text">
+            </label>
+            <button id="addTaskButton">追加</button>
+         </form>
+      </section>
+   </main>
+   
+   <script src="main.js"></script>
+</body>
+</html>
