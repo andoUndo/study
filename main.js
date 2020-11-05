@@ -106,7 +106,8 @@
          this.taskManager = new TaskManager();
 
          // 入力したタスクの値をマネージャーオブジェクトに渡す
-         document.getElementById('addTaskButton').addEventListener('click', () => {
+         document.querySelector('form').addEventListener('submit', e => {
+            e.preventDefault();
             this.taskManager.makeTask(document.getElementById('commnet').value);
             document.getElementById('commnet').value = '';
          });
