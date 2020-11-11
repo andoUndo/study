@@ -22,29 +22,38 @@
       get status() {
          return this._status;
       }
+
+      set id(id) {
+         this._id = id;
+      }
    }
 
    /************************************
           タスクを表示するクラス
    ************************************/
-   class ScreenPrinter {
-      constructor() {
+   class ScreenManager {
+      constructor(main) {
          // タスクの表示場所を取得する
          this.taskContainer = document.getElementById('taskContainer');
+         this.main = main;
       }
 
       // リストのタスクをすべて表示する
       printScreen(taskList) {
          // 表示しているタスクを画面から削除
-         this.resetScreen();
+         while(this.taskContainer.firstChild) {
+            this.taskContainer.removeChild(this.taskContainer.firstChild);
+         }
 
          taskList.forEach(task => {
             // タスクの表示場所に行を追加
             const taskRow = this.taskContainer.insertRow();
             
             // タスクの各項目を配列にまとめる
-            const taskItems = [document.createTextNode(task.id), document.createTextNode(task.comment),
-                               this.makeStatusButton(task.status), this.makeDeleteButton()];
+            const taskItems = [document.createTextNode(task.id),
+                               document.createTextNode(task.comment),
+                               this.makeStatusButton(task.status),
+                               this.makeDeleteButton(taskRow)];
 
             // 行に列を作成して各項目を追加
             taskItems.forEach(taskItem => {
@@ -63,56 +72,78 @@
       }
 
       // タスクを削除するボタンを作成
-      makeDeleteButton() {
+      makeDeleteButton(taskRow) {
          const deleteButton = document.createElement('button');
          deleteButton.textContent = '削除';
 
-         return deleteButton;
-      }
+         deleteButton.addEventListener('click', () => {
+            // テーブルの行数から削除対象の配列番号を取得
+            const taskIndex = taskRow.rowIndex - 1;
+            taskRow.remove();
+            this.main.pushDeleteButton(taskIndex);
+         });
 
-      resetScreen() {
-         while(this.taskContainer.firstChild) {
-            this.taskContainer.removeChild(this.taskContainer.firstChild);
-         }
+         return deleteButton;
       }
    }
 
    /************************************
-         タスクのリストを持つクラス
+       タスクとリストを処理するクラス
    ************************************/
    class TaskManager {
-      constructor() {
+      constructor(screenManager) {
          this.taskList = [];
-         this.taskId = 0;
-         this.screenPrinter = new ScreenPrinter();
+         this.screenManager = screenManager;
       }
 
       // タスクオブジェクトを作成してリストに追加
       makeTask(commnet) {
-         this.taskList.push(new Task(this.taskId, commnet));
-         this.taskId++;
+         this.taskList.push(new Task(this.taskList.length, commnet));
+         this.printTasks();
+      }
 
-         // タスクの表示
-         this.screenPrinter.printScreen(this.taskList);
+      // タスクリストをスクリーンマネージャーに渡す
+      printTasks() {
+         this.screenManager.printScreen(this.taskList);
+      }
+
+      // タスクリストからタスクを削除
+      deleteTask(taskIndex) {
+         this.taskList.splice(taskIndex, 1);
+         this.resetTaskId();
+      }
+
+      // タスクのIDを振り直してタスクを再表示
+      resetTaskId() {
+         this.taskList.forEach((task, index ) => {
+            task.id = index;
+         });
+
+         this.printTasks();
       }
    }
 
    /************************************
-            初期化するクラス
+              メインクラス
    ************************************/
-   class Initialize {
+   class Main {
       constructor() {
-         // タスクのリストを持つマネージャーオブジェクトを初期化
-         this.taskManager = new TaskManager();
+         this.screenManager = new ScreenManager(this);
+         this.taskManager = new TaskManager(this.screenManager);
 
-         // 入力したタスクの値をマネージャーオブジェクトに渡す
+         // 入力したタスクをタスクマネージャーに渡す
          document.querySelector('form').addEventListener('submit', e => {
             e.preventDefault();
             this.taskManager.makeTask(document.getElementById('commnet').value);
             document.getElementById('commnet').value = '';
          });
       }
+
+      // 配列番号をタスクマネージャーに渡す
+      pushDeleteButton(taskIndex) {
+         this.taskManager.deleteTask(taskIndex);
+      }
    }
 
-   new Initialize();
+   new Main();
 }
