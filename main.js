@@ -8,7 +8,7 @@
       constructor(id, comment) {
          this._id = id;
          this._comment = comment;
-         this._status = '実行中';
+         this._status = true;
       }
 
       get id() {
@@ -25,6 +25,10 @@
 
       set id(id) {
          this._id = id;
+      }
+
+      set status(status) {
+         this._status = status;
       }
    }
 
@@ -52,7 +56,7 @@
             // タスクの各項目を配列にまとめる
             const taskItems = [document.createTextNode(task.id),
                                document.createTextNode(task.comment),
-                               this.makeStatusButton(task.status),
+                               this.makeStatusButton(task),
                                this.makeDeleteButton(taskRow)];
 
             // 行に列を作成して各項目を追加
@@ -64,9 +68,15 @@
       }
 
       // タスクの状態を表示するボタンを作成
-      makeStatusButton(status) {
+      makeStatusButton(task) {
          const statusButton = document.createElement('button');
-         statusButton.textContent = status;
+         statusButton.textContent = task.status? '実行中': '完了';
+
+         statusButton.addEventListener('click', () => {
+            // ボタンの表示を反転する
+            statusButton.textContent = task.status? '完了': '実行中';
+            this.main.sendChangeStatus(task);
+         });
 
          return statusButton;
       }
@@ -77,10 +87,10 @@
          deleteButton.textContent = '削除';
 
          deleteButton.addEventListener('click', () => {
-            // テーブルの行数から削除対象の配列番号を取得
-            const taskIndex = taskRow.rowIndex - 1;
+            // 削除するタスクのIDを表示要素から取得
+            const taskId = taskRow.firstChild.textContent;
             taskRow.remove();
-            this.main.pushDeleteButton(taskIndex);
+            this.main.sendDeleteTargetId(taskId);
          });
 
          return deleteButton;
@@ -99,17 +109,12 @@
       // タスクオブジェクトを作成してリストに追加
       makeTask(commnet) {
          this.taskList.push(new Task(this.taskList.length, commnet));
-         this.printTasks();
-      }
-
-      // タスクリストをスクリーンマネージャーに渡す
-      printTasks() {
          this.screenManager.printScreen(this.taskList);
       }
 
       // タスクリストからタスクを削除
-      deleteTask(taskIndex) {
-         this.taskList.splice(taskIndex, 1);
+      deleteTask(taskId) {
+         this.taskList.splice(taskId, 1);
          this.resetTaskId();
       }
 
@@ -119,7 +124,12 @@
             task.id = index;
          });
 
-         this.printTasks();
+         this.screenManager.printScreen(this.taskList);
+      }
+
+      // タスクのステータスを反転する
+      changeTaskStatus(task) {
+         task.status = !task.status;
       }
    }
 
@@ -139,9 +149,14 @@
          });
       }
 
-      // 配列番号をタスクマネージャーに渡す
-      pushDeleteButton(taskIndex) {
-         this.taskManager.deleteTask(taskIndex);
+      // タスクIDをタスクマネージャーに渡す
+      sendDeleteTargetId(taskId) {
+         this.taskManager.deleteTask(taskId);
+      }
+
+      // タスクオブジェクトをタスクマネージャーに渡す
+      sendChangeStatus(task) {
+         this.taskManager.changeTaskStatus(task);
       }
    }
 
