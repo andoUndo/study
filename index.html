@@ -11,10 +11,16 @@
 
    <main>
       <!-- 表示内容を切り替えるラジオボタン -->
-      <section>
-            <input type="radio" name="displayStatus" value="statusAll" checked> すべて
-            <input type="radio" name="displayStatus" value="statusWorking"> 作業中
-            <input type="radio" name="displayStatus" value="statusFinished"> 完了
+      <section id="selectedDiplayStatus">
+         <label for="displayStatusAll">
+            <input type="radio" name="displayStatus" id="displayStatusAll" value="statusAll" checked> すべて
+         </label>
+         <label for="displayStatusRunning">
+            <input type="radio" name="displayStatus" id="displayStatusRunning" value="statusRunning"> 作業中
+         </label>
+         <label for="displayStatusFinished">
+            <input type="radio" name="displayStatus" id="displayStatusFinished" value="statusFinished"> 完了
+         </label>
       </section>
 
       <!-- タスクリストの表示 -->
